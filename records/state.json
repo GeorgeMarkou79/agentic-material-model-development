@@ -1,0 +1,22 @@
+{
+  "best": {
+    "iteration": "013",
+    "J": 2.0738151994280516,
+    "build": "TRIC_AL013",
+    "n_failed": 25,
+    "all_pass": false
+  },
+  "next_iteration": 23,
+  "nights": {
+    "2026-10-25": 42.150825300000015
+  },
+  "consecutive_failures": 3,
+  "closed_families": [],
+  "previous_best_N50": {
+    "iteration": "005",
+    "J": 2.216938772880589,
+    "build": "TRIC_AL005",
+    "n_failed": 30,
+    "all_pass": false
+  }
+}

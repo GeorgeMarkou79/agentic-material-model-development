@@ -1,0 +1,74 @@
+{
+  "_note": "Agent loop configuration (Claude, 2026-10-25). Paths are relative to the workspace root. Edit the values, not the keys.",
+  "budget_usd_per_night": 50.0,
+  "stop_reserve_usd": 1.5,
+  "max_iterations_per_night": 15,
+  "stop_after_consecutive_failures": 5,
+  "stop_at_local_time": "07:30",
+  "models": {
+    "manager": "claude-opus-5-5",
+    "developer": "claude-opus-5-5",
+    "assessor": "claude-sonnet-5-5"
+  },
+  "effort": {"manager": "high", "developer": "high", "assessor": "medium"},
+  "per_call_budget_usd": {"manager": 1.0, "developer": 6.0, "assessor": 1.0},
+  "max_turns": {"manager": 30, "developer": 120, "assessor": 40},
+  "developer_tool_limits": {"build_and_unit_test": 4, "run_one_model": 4},
+
+  "build_prefix": "TRIC_AL",
+  "baseline_build": "TRIC_AL013",
+  "workers": {"lefas": 8, "bench": 4},
+  "keep_builds": 3,
+
+  "model_sets": {
+    "lefas": {"runner": "tools/tric_lefas_parallel.py", "sources": ["verification/TRIC_Lefas/Models/kpmp4_n2"]},
+    "bench": {"runner": "tools/tric_bench.py", "sources": ["verification/TRIC_Bench/Models/kp/kpmp5_n2",
+                                                           "verification/TRIC_Bench/Models/kp/kpmp_rp_med_n2",
+                                                           "verification/TRIC_Slab/Models/kpmp_n2"]}
+  },
+  "run_roots": {"lefas": "verification/TRIC_Lefas/runs", "bench": "verification/TRIC_Bench/runs"},
+
+  "cases": {
+    "SW14": {"kind": "wall", "experiment": "verification/TRIC_Lefas/experiment/SW14_experiment_digitized.csv", "load_column": "lateral_load_kN",
+             "runs": {"Coarse": "Lefas_SW14_TRIC_KP_Coarse_N100", "Medium": "Lefas_SW14_TRIC_KP_Medium_N100"}},
+    "SW16": {"kind": "wall", "experiment": "verification/TRIC_Lefas/experiment/SW16_experiment_digitized.csv", "load_column": "lateral_load_kN",
+             "runs": {"Coarse": "Lefas_SW16_TRIC_KP_Coarse_N100", "Medium": "Lefas_SW16_TRIC_KP_Medium_N100"}},
+    "SW21": {"kind": "wall", "experiment": "verification/TRIC_Lefas/experiment/SW21_experiment_digitized.csv", "load_column": "lateral_load_kN",
+             "runs": {"Coarse": "Lefas_SW21_TRIC_KP_Coarse_N100", "Medium": "Lefas_SW21_TRIC_KP_Medium_N100"}},
+    "SW22": {"kind": "wall", "experiment": "verification/TRIC_Lefas/experiment/SW22_experiment_digitized.csv", "load_column": "lateral_load_kN",
+             "runs": {"Coarse": "Lefas_SW22_TRIC_KP_Coarse_N100", "Medium": "Lefas_SW22_TRIC_KP_Medium_N100"}},
+    "W2": {"kind": "panel", "experiment": "verification/TRIC_Bench/experiment/W2_experiment.csv", "load_column": "load_kN",
+           "runs": {"Coarse": "W2_TRIC_KP_Coarse_N100", "Medium": "W2_TRIC_KP_Medium_N100"}},
+    "Toronto": {"kind": "toronto", "experiment": "verification/TRIC_Bench/experiment/Toronto_experiment.csv", "load_column": "load_kN",
+                "displacement_shift_mm": 1.008,
+                "runs": {"Coarse": "TorontoNoSWRP_TRIC_KP_Coarse_N100", "Medium": "TorontoNoSWRP_TRIC_KP_Medium_N100"}},
+    "SlabCANT": {"kind": "slab", "experiment": "verification/TRIC_Slab/experiment/SlabCANT_analytic.csv", "load_column": "load_kN",
+                 "reference": "verification/TRIC_Slab/experiment/SlabCANT_analytic.json",
+                 "runs": {"Coarse": "SlabCANT_TRIC_KP_Coarse_N120", "Medium": "SlabCANT_TRIC_KP_Medium_N120"}},
+    "SlabSS": {"kind": "slab", "experiment": "verification/TRIC_Slab/experiment/SlabSS_analytic.csv", "load_column": "load_kN",
+               "reference": "verification/TRIC_Slab/experiment/SlabSS_analytic.json",
+               "runs": {"Coarse": "SlabSS_TRIC_KP_Coarse_N120", "Medium": "SlabSS_TRIC_KP_Medium_N120"}}
+  },
+
+  "criteria": {
+    "curve_peak_abs": 0.10,
+    "curve_nrmse": 0.10,
+    "coverage": 0.999,
+    "mesh_peak_diff": 0.10,
+    "mesh_nrmse": 0.10,
+    "slab_K0": 0.05,
+    "slab_Pcr": 0.10,
+    "slab_Py": 0.10,
+    "slab_Pu": 0.10,
+    "slab_nrmse": 0.10,
+    "toronto_peak_kN": [700.0, 1050.0],
+    "toronto_post_peak_drop": 0.15,
+    "toronto_east_web_cracked_fraction": 0.15,
+    "equilibrium_rel": 0.01,
+    "first_crack_fraction_in_region": 0.5,
+    "premature_crushing_load_ratio": 0.8,
+    "stress_locking_ft_factor": 1.5,
+    "strut_overstrength_fc_factor": 1.3
+  },
+  "_toronto_note": "Toronto is run without self-weight. Its curve is compared with the test displacement minus the self-weight deflection (1.008 mm), but the test failure load 685 kN includes the self-weight shear. A point load that gives the same east-span shear as the self-weight is about 90 kN (section d from the load) to 265 kN (mid east span), so the no-self-weight model should fail in shear at about 775-950 kN. The pass test is: shear failure detected (post-peak drop + cracking through the east web) with the peak inside toronto_peak_kN (700-1050 kN). The curve score of Toronto is reported but is NOT a pass criterion: the test is about 1.5x softer than beam theory for this specimen (support/bearing deformation in the measured displacement), which no material change should chase."
+}
